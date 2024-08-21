@@ -1,0 +1,5 @@
+('quiz_list',
+ 'quiz_list',
+ [],
+ 'DATA',
+ [('quiz_list\\minhaya_list.csv', 'quiz_list\\minhaya_list.csv', 'DATA')])

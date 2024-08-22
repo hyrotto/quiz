@@ -75,6 +75,7 @@ def show_mondai_str():
     
     mondai_str = quiz_list.iloc[count-1,0]
     kaitou_str = quiz_list.iloc[count-1,1]
+    yomi_str = quiz_list.iloc[count-1,2]
 
     #出題数表示
     tk.Label(quiz_frame,text=str(count)+"/"+str(end_num-start_num+1) ,font=("meiryo", 20)).pack(anchor=tk.NW)
@@ -89,7 +90,9 @@ def show_mondai_str():
     tk.Label(quiz_frame,text="解答",font=("meiryo", 20, "bold")).pack(anchor=tk.NW,pady=10)
     result = tk.Label(quiz_frame,text="ここに解答を表示",font=("MSゴシック", "15"))
     result.pack(fill = tk.X,side = tk.TOP)
-    tk.Button(quiz_frame,text="解答",command=partial(answer,result,kaitou_str)).pack(side=tk.TOP)
+    result_yomi = tk.Label(quiz_frame,text="(読み)",font=("MSゴシック", "15"))
+    result_yomi.pack(fill = tk.X,side = tk.TOP)
+    tk.Button(quiz_frame,text="解答",command=partial(answer,result,kaitou_str,result_yomi,yomi_str)).pack(side=tk.TOP)
 
     #問題移動用フレーム
     button_frame = tk.Frame(quiz_frame)
@@ -99,9 +102,11 @@ def show_mondai_str():
     
 
 #解答を表示ボタンに連動する関数
-def answer(result,kaitou_str):
+def answer(result,kaitou_str,result_yomi,yomi_str):
     result['text'] = kaitou_str
     result.update
+    result_yomi['text'] = yomi_str
+    result_yomi.update
 
 #次の問題に進むボタンに連動する関数
 def next():

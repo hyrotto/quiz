@@ -93,13 +93,29 @@ def show_mondai_str():
     result_yomi = tk.Label(quiz_frame,text="(読み)",font=("MSゴシック", "15"))
     result_yomi.pack(fill = tk.X,side = tk.TOP)
     tk.Button(quiz_frame,text="解答",command=partial(answer,result,kaitou_str,result_yomi,yomi_str)).pack(side=tk.TOP)
+    tk.Label(quiz_frame,text="スペースキー",font=("MSゴシック", "10")).pack(side=tk.TOP)
 
     #問題移動用フレーム
     button_frame = tk.Frame(quiz_frame)
     button_frame.pack(side=tk.BOTTOM, fill=tk.X)
+    tk.Label(button_frame,text="右 矢印キー",font=("MSゴシック", "8")).pack(side=tk.RIGHT)
     tk.Button(button_frame,text="次の問題へ進む",command=next).pack(side=tk.RIGHT)
+    tk.Label(button_frame,text="左 矢印キー",font=("MSゴシック", "8")).pack(side=tk.LEFT)
     tk.Button(button_frame,text="前の問題へ戻る",command=previous).pack(side=tk.LEFT)
     
+    #キー入力の受け取り
+    quiz_frame.bind("<KeyPress>", lambda event: puressed_ket(event, result, kaitou_str, result_yomi, yomi_str))
+    quiz_frame.focus_set() 
+    
+
+#入力されたキーに応じて処理
+def puressed_ket(event,result, kaitou_str, result_yomi, yomi_str):
+    if event.keysym == "space":
+        answer(result, kaitou_str, result_yomi, yomi_str)
+    if event.keysym == "Right":
+        next()
+    if event.keysym == "Left":
+        previous()
 
 #解答を表示ボタンに連動する関数
 def answer(result,kaitou_str,result_yomi,yomi_str):
@@ -178,5 +194,7 @@ if __name__ == '__main__':
     tk.Button(start_stop,text="出題開始",command=start).pack(side=tk.LEFT,padx=10)
     #出題停止ボタン
     tk.Button(start_stop,text="出題停止",command=end).pack(side=tk.LEFT,padx=10)
+
+    
 
     root.mainloop()

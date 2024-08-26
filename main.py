@@ -48,9 +48,9 @@ def start():
     
     #csvからデータフレームに読み込み
     quiz_list = load_quiz_list(start_num, end_num)
-
+    print(quiz_list)
     #シャッフル
-    if selected_value.get() == 1:
+    if selected_value1.get() == 1:
         quiz_list = quiz_list.sample(frac=1).reset_index(drop=True)
     
     #出題用フレーム
@@ -67,7 +67,10 @@ def end():
 
 #指定された範囲の問題を取り出す関数
 def load_quiz_list(start_num, end_num):
-    df = pd.read_csv(resourcePath("quiz_list/minhaya_list.csv"))
+    if selected_value2.get() == 1:
+        df = pd.read_csv(resourcePath("quiz_list/作問2.csv"))
+    else:
+        df = pd.read_csv(resourcePath("quiz_list/minhaya_list.csv"))
     return df.loc[start_num-1:end_num-1, :]
 
 #問題文のフレームを生成
@@ -151,6 +154,14 @@ def previous():
         quiz_frame.pack(expand=True,fill = tk.BOTH	,side = tk.TOP)
         show_mondai_str()
 
+#問題数表示更新
+def update_quiz_num_label():
+    if selected_value2.get() == 1:
+        quiz_num = pd.read_csv(resourcePath("quiz_list/作問2.csv")).shape[0]
+    else:
+        quiz_num = pd.read_csv(resourcePath("quiz_list/minhaya_list.csv")).shape[0]
+    quiz_num_label.config(text="(総問題数："+str(quiz_num)+")")
+
 
 #メインウィンド
 if __name__ == '__main__':
@@ -166,7 +177,8 @@ if __name__ == '__main__':
     #問題範囲指定フレーム
     nums_entry  = tk.Frame (frame_top)
     nums_entry.pack(side=tk.TOP)
-
+    
+    
     #入力エントリ
     label1 = tk.Label(nums_entry,text="開始番号",font=("MSゴシック", "10", "bold"))
     label1.pack(side=tk.LEFT,pady=10)
@@ -177,15 +189,30 @@ if __name__ == '__main__':
     entry2 = tk.Entry(nums_entry)
     entry2.pack(side=tk.LEFT)
 
-    #問題数表示
-    quiz_num = pd.read_csv(resourcePath("quiz_list\minhaya_list.csv")).shape[0]
-    tk.Label(nums_entry,text="(総問題数："+str(quiz_num)+")",font=("MSゴシック", "10")).pack(anchor=tk.S,pady=10, padx=30)
+    #ラジオボタンフレーム
+    radiobutton_frame = tk.Frame(frame_top)
+    radiobutton_frame.pack(side=tk.TOP,fill=tk.X)
 
     #出題モードラジオボタン
-    selected_value = tk.IntVar()
-    selected_value.set(0)
-    sequential = tk.Radiobutton(frame_top,text="順番",variable=selected_value,value=0).pack(anchor=tk.SE)
-    randum = tk.Radiobutton(frame_top,text="ランダム",variable=selected_value,value=1).pack(anchor=tk.SE)
+    radio1_frame = tk.Frame(radiobutton_frame)
+    radio1_frame.pack(side=tk.RIGHT)
+    selected_value1 = tk.IntVar()
+    selected_value1.set(0)
+    sequential = tk.Radiobutton(radio1_frame,text="順番",variable=selected_value1,value=0).pack(anchor=tk.SE)
+    randum = tk.Radiobutton(radio1_frame,text="ランダム",variable=selected_value1,value=1).pack(anchor=tk.SE)
+    #問題選択ラジオボタン
+    radio2_frame = tk.Frame(radiobutton_frame)
+    radio2_frame.pack(side=tk.LEFT)
+    selected_value2 = tk.IntVar()
+    selected_value2.set(0)
+    minhaya_list = tk.Radiobutton(radio2_frame,text="みんはや問題",variable=selected_value2,value=0,command=update_quiz_num_label).pack(anchor=tk.SW)
+    original_list = tk.Radiobutton(radio2_frame,text="自作リスト",variable=selected_value2,value=1,command=update_quiz_num_label).pack(anchor=tk.SW)
+
+    #問題数表示
+    quiz_num_label = tk.Label(nums_entry, text="", font=("MSゴシック", "10"))
+    quiz_num_label.pack(anchor=tk.S, pady=10, padx=30)
+
+    
 
     #問題範囲指定フレーム
     start_stop = tk.Frame (frame_top)

@@ -68,7 +68,7 @@ def end():
 #指定された範囲の問題を取り出す関数
 def load_quiz_list(start_num, end_num):
     if selected_value2.get() == 1:
-        df = pd.read_csv(resourcePath("quiz_list/作問2.csv"))
+        df = pd.read_csv(resourcePath("quiz_list/What2024_final.csv"))
     else:
         df = pd.read_csv(resourcePath("quiz_list/minhaya_list.csv"))
     return df.loc[start_num-1:end_num-1, :]
@@ -157,7 +157,7 @@ def previous():
 #問題数表示更新
 def update_quiz_num_label():
     if selected_value2.get() == 1:
-        quiz_num = pd.read_csv(resourcePath("quiz_list/作問2.csv")).shape[0]
+        quiz_num = pd.read_csv(resourcePath("quiz_list/What2024_final.csv")).shape[0]
     else:
         quiz_num = pd.read_csv(resourcePath("quiz_list/minhaya_list.csv")).shape[0]
     quiz_num_label.config(text="(総問題数："+str(quiz_num)+")")

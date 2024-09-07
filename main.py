@@ -71,15 +71,28 @@ def load_quiz_list(start_num, end_num):
     if selected_value2.get() == 1:
         df = pd.read_csv(resourcePath("quiz_list/What2024_final.csv"))
     else:
-        df = pd.read_csv(resourcePath("quiz_list/minhaya_list.csv"))
+        df = pd.read_csv(resourcePath("quiz_list/minhaya_list-2.csv"))
     return df.loc[start_num-1:end_num-1, :]
+
+#指定した問題idのフラグを更新する
+def update_csv(mondai_id,review_flag):
+    if selected_value2.get() == 1:
+        df = pd.read_csv(resourcePath("quiz_list/What2024_final.csv"))
+    else:
+        df = pd.read_csv(resourcePath("quiz_list/minhaya_list-2.csv"))
+    df.loc[df['問題ID'] == mondai_id, '復習フラグ'] = int(review_flag)
+    if selected_value2.get() == 1:
+        df.to_csv(resourcePath("quiz_list/What2024_final.csv"), index=False)
+    else:
+        df.to_csv(resourcePath("quiz_list/minhaya_list-2.csv"), index=False)
 
 #問題文のフレームを生成
 def show_mondai_str():
-    
-    mondai_str = quiz_list.iloc[count-1,0]
-    kaitou_str = quiz_list.iloc[count-1,1]
-    yomi_str = quiz_list.iloc[count-1,2]
+    mondai_id = quiz_list.iloc[count-1,0]
+    mondai_str = quiz_list.iloc[count-1,1]
+    kaitou_str = quiz_list.iloc[count-1,2]
+    yomi_str = quiz_list.iloc[count-1,3]
+    review_frag = quiz_list.iloc[count-1,4]
 
     #出題数表示
     tk.Label(quiz_frame,text=str(count)+"/"+str(end_num-start_num+1) ,font=("meiryo", 20)).pack(anchor=tk.NW)
@@ -99,6 +112,17 @@ def show_mondai_str():
     tk.Button(quiz_frame,text="解答",command=partial(answer,result,kaitou_str,result_yomi,yomi_str)).pack(side=tk.TOP)
     tk.Label(quiz_frame,text="スペースキー",font=("MSゴシック", "10")).pack(side=tk.TOP)
 
+    #復習フラグ
+    review_frag_frame = tk.Frame(quiz_frame,padx=5,pady=5,relief=tk.RAISED, bd=2)
+    review_frag_frame.pack(expand=True,fill = tk.BOTH,side = tk.TOP)
+    review_frag_var = tk.BooleanVar(value = int(review_frag)==1)
+    review_frag_box = tk.Checkbutton(review_frag_frame,
+                                     variable=review_frag_var,
+                                     text='復習フラグ',
+                                     onvalue=True,offvalue=False
+                                     ,command=lambda:update_csv(mondai_id, review_frag_var.get()))
+    review_frag_box.pack(fill = tk.X,side = tk.TOP)
+    
     #問題移動用フレーム
     button_frame = tk.Frame(quiz_frame)
     button_frame.pack(side=tk.BOTTOM, fill=tk.X)
@@ -160,7 +184,7 @@ def update_quiz_num_label():
     if selected_value2.get() == 1:
         quiz_num = pd.read_csv(resourcePath("quiz_list/What2024_final.csv")).shape[0]
     else:
-        quiz_num = pd.read_csv(resourcePath("quiz_list/minhaya_list.csv")).shape[0]
+        quiz_num = pd.read_csv(resourcePath("quiz_list/minhaya_list-2.csv")).shape[0]
     quiz_num_label.config(text="(総問題数："+str(quiz_num)+")")
 
 
@@ -168,7 +192,7 @@ def update_quiz_num_label():
 if __name__ == '__main__':
     #メインウィンドを定義
     root = tk.Tk()
-    root.geometry("900x500")
+    root.geometry("900x600")
     root.title("クイズ出題くん")
 
     #上部フレームウィジェット
@@ -178,7 +202,6 @@ if __name__ == '__main__':
     #問題範囲指定フレーム
     nums_entry  = tk.Frame (frame_top)
     nums_entry.pack(side=tk.TOP)
-    
     
     #入力エントリ
     label1 = tk.Label(nums_entry,text="開始番号",font=("MSゴシック", "10", "bold"))
@@ -213,8 +236,6 @@ if __name__ == '__main__':
     quiz_num_label = tk.Label(nums_entry, text="", font=("MSゴシック", "10"))
     quiz_num_label.pack(anchor=tk.S, pady=10, padx=30)
 
-    
-
     #問題範囲指定フレーム
     start_stop = tk.Frame (frame_top)
     start_stop.pack(side=tk.TOP)
@@ -222,7 +243,5 @@ if __name__ == '__main__':
     tk.Button(start_stop,text="出題開始",command=start).pack(side=tk.LEFT,padx=10)
     #出題停止ボタン
     tk.Button(start_stop,text="出題停止",command=end).pack(side=tk.LEFT,padx=10)
-
-    
 
     root.mainloop()

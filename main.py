@@ -6,6 +6,7 @@ from functools import partial
 import sys
 import os
 
+
 #pyinstallerでのファイルパス参照用
 def resourcePath(filename):
   if hasattr(sys, "_MEIPASS"):

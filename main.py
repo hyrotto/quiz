@@ -1,16 +1,26 @@
 import pandas as pd
 import tkinter as tk
 from tkinter import messagebox as mbox
-import tkinter.ttk as ttk
 from functools import partial
 import sys
 import os
+from pathlib import Path
 
+#リソース名
+minhaya = "minhaya_list.csv"
+org_list = "org_list.csv"
+exe_path = os.path.dirname(os.path.abspath(sys.argv[0]))
+print(f"exe_path: {exe_path}")
 #pyinstallerでのファイルパス参照用
+"""
 def resourcePath(filename):
   if hasattr(sys, "_MEIPASS"):
       return os.path.join(sys._MEIPASS, filename)
   return os.path.join(filename)
+"""
+def resourcePath(filename):
+    return os.path.join(exe_path, filename)
+
 
 #問題文の自動改行
 def on_config(event):
@@ -67,27 +77,31 @@ def end():
 
 #指定された範囲の問題を取り出す関数
 def load_quiz_list(start_num, end_num):
-    if selected_value2.get() == 1:
-        df = pd.read_csv(resourcePath("quiz_list/What2024_final.csv"))
-    else:
-        df = pd.read_csv(resourcePath("quiz_list/minhaya_list.csv"))
-    
-    if selected_value3.get() == 1:
-        df = df[df['復習フラグ'] == 1]
+    try:
+        if selected_value2.get() == 1:
+            df = pd.read_csv(resourcePath(org_list))
+        else:
+            df = pd.read_csv(resourcePath(minhaya))
+        
+        if selected_value3.get() == 1:
+            df = df[df['復習フラグ'] == 1]
 
-    return df.loc[start_num-1:end_num-1, :]
+        return df.loc[start_num-1:end_num-1, :]
+    except FileNotFoundError:
+        mbox.showerror("ファイルエラー", "指定されたCSVファイルが見つかりません。")
+        return pd.DataFrame()
 
 #指定した問題idのフラグを更新する
 def update_csv(mondai_id,review_flag):
     if selected_value2.get() == 1:
-        df = pd.read_csv(resourcePath("quiz_list/What2024_final.csv"))
+        df = pd.read_csv(resourcePath(org_list))
     else:
-        df = pd.read_csv(resourcePath("quiz_list/minhaya_list.csv"))
+        df = pd.read_csv(resourcePath(minhaya))
     df.loc[df['問題ID'] == mondai_id, '復習フラグ'] = int(review_flag)
     if selected_value2.get() == 1:
-        df.to_csv(resourcePath("quiz_list/What2024_final.csv"), index=False)
+        df.to_csv(resourcePath(org_list), index=False)
     else:
-        df.to_csv(resourcePath("quiz_list/minhaya_list.csv"), index=False)
+        df.to_csv(resourcePath(minhaya), index=False)
 
 #問題文のフレームを生成
 def show_mondai_str():
@@ -204,9 +218,9 @@ def previous():
 #問題数表示更新
 def update_quiz_num_label():
     if selected_value2.get() == 1:
-        quiz_num = pd.read_csv(resourcePath("quiz_list/What2024_final.csv")).shape[0]
+        quiz_num = pd.read_csv(resourcePath(org_list)).shape[0]
     else:
-        quiz_num = pd.read_csv(resourcePath("quiz_list/minhaya_list.csv")).shape[0]
+        quiz_num = pd.read_csv(resourcePath(minhaya)).shape[0]
     quiz_num_label.config(text="(総問題数："+str(quiz_num)+")")
 
 

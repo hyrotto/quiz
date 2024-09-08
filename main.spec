@@ -18,7 +18,6 @@ pyz = PYZ(a.pure)
 
 exe = EXE(
     pyz,
-    Tree('quiz_list',prefix='quiz_list'),
     a.scripts,
     a.binaries,
     a.datas,

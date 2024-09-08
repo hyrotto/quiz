@@ -21,7 +21,7 @@ main.pyを直接実行、もしくはdist/main.exeから実行
 ・exeファイルと同じディレクトリにcsvファイルを追加
 
 # 使用時ディレクトリ構成
-file
+folder
   ├─ 出題くん.exe
   ├─ minhaya_list.csv  
   └─ org_list.csv

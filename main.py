@@ -72,6 +72,10 @@ def load_quiz_list(start_num, end_num):
         df = pd.read_csv(resourcePath("quiz_list/What2024_final.csv"))
     else:
         df = pd.read_csv(resourcePath("quiz_list/minhaya_list-2.csv"))
+    
+    if selected_value3.get() == 1:
+        df = df[df['復習フラグ'] == 1]
+
     return df.loc[start_num-1:end_num-1, :]
 
 #指定した問題idのフラグを更新する
@@ -95,7 +99,7 @@ def show_mondai_str():
     review_frag = quiz_list.iloc[count-1,4]
 
     #出題数表示
-    tk.Label(quiz_frame,text=str(count)+"/"+str(end_num-start_num+1) ,font=("meiryo", 20)).pack(anchor=tk.NW)
+    tk.Label(quiz_frame,text=str(count)+"/"+str(len(quiz_list)) ,font=("meiryo", 20)).pack(anchor=tk.NW)
 
     #問題文表示
     tk.Label(quiz_frame,text="問題文",font=("meiryo", 20, "bold")).pack(anchor=tk.NW)
@@ -113,37 +117,56 @@ def show_mondai_str():
     tk.Label(quiz_frame,text="スペースキー",font=("MSゴシック", "10")).pack(side=tk.TOP)
 
     #復習フラグ
-    review_frag_frame = tk.Frame(quiz_frame,padx=5,pady=5,relief=tk.RAISED, bd=2)
-    review_frag_frame.pack(expand=True,fill = tk.BOTH,side = tk.TOP)
+    review_frag_frame = tk.Frame(quiz_frame,padx=5,pady=5)
+    review_frag_frame.pack(fill = tk.X,side = tk.TOP)
+    global review_frag_var
     review_frag_var = tk.BooleanVar(value = int(review_frag)==1)
-    review_frag_box = tk.Checkbutton(review_frag_frame,
+    review_frag_box_frame = tk.Frame(review_frag_frame)
+    review_frag_box_frame.pack(fill = tk.X,side = tk.LEFT)
+    global review_frag_box 
+    review_frag_box = tk.Checkbutton(review_frag_box_frame,
                                      variable=review_frag_var,
                                      text='復習フラグ',
+                                     font=("MSゴシック", "12"),
                                      onvalue=True,offvalue=False
                                      ,command=lambda:update_csv(mondai_id, review_frag_var.get()))
     review_frag_box.pack(fill = tk.X,side = tk.TOP)
+    tk.Label(review_frag_box_frame,text="↑キー",font=("MSゴシック", "10")).pack(side=tk.TOP)
     
     #問題移動用フレーム
     button_frame = tk.Frame(quiz_frame)
     button_frame.pack(side=tk.BOTTOM, fill=tk.X)
-    tk.Label(button_frame,text="右 矢印キー",font=("MSゴシック", "8")).pack(side=tk.RIGHT)
+    tk.Label(button_frame,text="→キー",font=("MSゴシック", "8")).pack(side=tk.RIGHT)
     tk.Button(button_frame,text="次の問題へ進む",command=next).pack(side=tk.RIGHT)
-    tk.Label(button_frame,text="左 矢印キー",font=("MSゴシック", "8")).pack(side=tk.LEFT)
+    tk.Label(button_frame,text="←キー",font=("MSゴシック", "8")).pack(side=tk.LEFT)
     tk.Button(button_frame,text="前の問題へ戻る",command=previous).pack(side=tk.LEFT)
     
     #キー入力の受け取り
-    quiz_frame.bind("<KeyPress>", lambda event: puressed_ket(event, result, kaitou_str, result_yomi, yomi_str))
+    quiz_frame.bind("<KeyPress>", lambda event: puressed_ket(event, result, kaitou_str, result_yomi, yomi_str,mondai_id))
     quiz_frame.focus_set() 
     
 
 #入力されたキーに応じて処理
-def puressed_ket(event,result, kaitou_str, result_yomi, yomi_str):
+def puressed_ket(event,result, kaitou_str, result_yomi, yomi_str,mondai_id):
     if event.keysym == "space":
         answer(result, kaitou_str, result_yomi, yomi_str)
     if event.keysym == "Right":
         next()
     if event.keysym == "Left":
         previous()
+    if event.keysym == "Up":
+        swich_review_flag(mondai_id)
+
+#復習フラグチェックボックス切り替え
+def swich_review_flag(mondai_id):
+    global review_frag_var , review_frag_box
+    if review_frag_var.get():
+        review_frag_var.set(False)
+    elif not(review_frag_var.get()):
+        review_frag_var.set(True)
+    update_csv(mondai_id, review_frag_var.get())
+    review_frag_box.update
+    
 
 #解答を表示ボタンに連動する関数
 def answer(result,kaitou_str,result_yomi,yomi_str):
@@ -158,7 +181,7 @@ def next():
     current_num += 1
     count += 1
     quiz_frame.destroy()
-    if current_num <= end_num:
+    if count <= len(quiz_list):
         quiz_frame = tk.Frame(root,padx=5,pady=5,relief=tk.RAISED, bd=2)
         quiz_frame.pack(expand=True,fill = tk.BOTH	,side = tk.TOP)
         show_mondai_str()
@@ -219,18 +242,25 @@ if __name__ == '__main__':
 
     #出題モードラジオボタン
     radio1_frame = tk.Frame(radiobutton_frame)
-    radio1_frame.pack(side=tk.RIGHT)
+    radio1_frame.pack(side=tk.LEFT,expand=True)
     selected_value1 = tk.IntVar()
     selected_value1.set(0)
-    sequential = tk.Radiobutton(radio1_frame,text="順番",variable=selected_value1,value=0).pack(anchor=tk.SE)
-    randum = tk.Radiobutton(radio1_frame,text="ランダム",variable=selected_value1,value=1).pack(anchor=tk.SE)
+    sequential = tk.Radiobutton(radio1_frame,text="順番",variable=selected_value1,value=0).pack(anchor=tk.SW)
+    randum = tk.Radiobutton(radio1_frame,text="ランダム",variable=selected_value1,value=1).pack(anchor=tk.SW)
     #問題選択ラジオボタン
     radio2_frame = tk.Frame(radiobutton_frame)
-    radio2_frame.pack(side=tk.LEFT)
+    radio2_frame.pack(side=tk.LEFT,expand=True)
     selected_value2 = tk.IntVar()
     selected_value2.set(0)
     minhaya_list = tk.Radiobutton(radio2_frame,text="みんはや問題",variable=selected_value2,value=0,command=update_quiz_num_label).pack(anchor=tk.SW)
     original_list = tk.Radiobutton(radio2_frame,text="自作リスト",variable=selected_value2,value=1,command=update_quiz_num_label).pack(anchor=tk.SW)
+    #問題絞り込みラジオボタン
+    radio3_frame = tk.Frame(radiobutton_frame)
+    radio3_frame.pack(side=tk.LEFT,expand=True)
+    selected_value3 = tk.IntVar()
+    selected_value3.set(0)
+    all = tk.Radiobutton(radio3_frame,text="選択範囲からすべてを出題",variable=selected_value3,value=0).pack(anchor=tk.SW)
+    review_only = tk.Radiobutton(radio3_frame,text="要復習問題のみ出題",variable=selected_value3,value=1).pack(anchor=tk.SW)
 
     #問題数表示
     quiz_num_label = tk.Label(nums_entry, text="", font=("MSゴシック", "10"))

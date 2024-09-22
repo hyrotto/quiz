@@ -24,4 +24,4 @@ main.pyを直接実行、もしくはdist/main.exeから実行
 folder
   ├─ 出題くん.exe
   ├─ minhaya_list.csv  
-  └─ org_list.csv
+  └─ org+任意のフォルダ名.csv

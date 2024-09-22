@@ -5,10 +5,12 @@ from functools import partial
 import sys
 import os
 from pathlib import Path
+import glob
 
 #リソース名
 minhaya = "minhaya_list.csv"
-org_list = "org_list.csv"
+org_list = glob.glob('org*')[0]
+print(org_list)
 exe_path = os.path.dirname(os.path.abspath(sys.argv[0]))
 print(f"exe_path: {exe_path}")
 #pyinstallerでのファイルパス参照用
